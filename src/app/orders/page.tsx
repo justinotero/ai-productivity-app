@@ -48,6 +48,7 @@ export default function OrdersPage() {
   const { orders, updateOrderFulfillment, updateOrderStatus, orderStats } = useOrders();
   const [activeTab, setActiveTab] = useState<OrderFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
 
   const filteredOrders = useMemo(() => {
     let filtered = [...orders];
@@ -98,8 +99,22 @@ export default function OrdersPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const toggleOrderSelection = (orderId: string) => {
+    const newSelectedOrderIds = new Set(selectedOrderIds);
+    if (newSelectedOrderIds.has(orderId)) {
+      newSelectedOrderIds.delete(orderId);
+    } else {
+      newSelectedOrderIds.add(orderId);
+    }
+    setSelectedOrderIds(newSelectedOrderIds);
+  };
+
+  const handleRowClick = (orderId: string) => {
+    toggleOrderSelection(orderId);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 relative">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Orders</h1>
       </div>
@@ -152,9 +167,7 @@ export default function OrdersPage() {
         <table className="w-full">
           <thead className="bg-[--background-hover] border-b border-[--border-color]">
             <tr>
-              <th className="w-4 p-4">
-                <input type="checkbox" className="rounded border-[--border-color]" />
-              </th>
+              <th className="w-4 p-4"></th>
               <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Order ID</th>
               <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Created</th>
               <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Customer</th>
@@ -167,9 +180,19 @@ export default function OrdersPage() {
           </thead>
           <tbody className="divide-y divide-[--border-color]">
             {paginatedOrders.map((order) => (
-              <tr key={order.id} className="hover:bg-[--background-hover]">
+              <tr 
+                key={order.id} 
+                className="hover:bg-[--background-hover] cursor-pointer"
+                onClick={() => handleRowClick(order.id)}
+              >
                 <td className="w-4 p-4">
-                  <input type="checkbox" className="rounded border-[--border-color]" />
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-[--border-color] cursor-pointer" 
+                    checked={selectedOrderIds.has(order.id)}
+                    onChange={() => toggleOrderSelection(order.id)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </td>
                 <td className="px-6 py-4 text-sm text-[--primary]">{order.orderId}</td>
                 <td className="px-6 py-4 text-sm">{formatDate(order.created)}</td>
@@ -183,7 +206,7 @@ export default function OrdersPage() {
                     <span className="text-sm">{order.customer.name}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                   <PillDropdown
                     value={order.fulfillment}
                     options={fulfillmentOptions}
@@ -193,7 +216,7 @@ export default function OrdersPage() {
                 </td>
                 <td className="px-6 py-4 text-sm">{formatCurrency(order.total)}</td>
                 <td className="px-6 py-4 text-sm">{formatCurrency(order.profit)}</td>
-                <td className="px-6 py-4">
+                <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                   <PillDropdown
                     value={order.status}
                     options={statusOptions}
@@ -214,6 +237,17 @@ export default function OrdersPage() {
           onPageChange={handlePageChange}
         />
       </div>
+
+      {/* Delete Button */}
+      {selectedOrderIds.size > 0 && (
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center z-10">
+          <button 
+            className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-lg transition-colors"
+          >
+            Delete {selectedOrderIds.size} {selectedOrderIds.size === 1 ? 'order' : 'orders'}
+          </button>
+        </div>
+      )}
     </div>
   );
 } 

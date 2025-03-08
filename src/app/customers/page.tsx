@@ -24,6 +24,7 @@ function formatDate(date: Date): string {
 
 export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
 
   // Filter customers based on search
   const filteredCustomers = customers.filter(customer => {
@@ -53,8 +54,22 @@ export default function CustomersPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const toggleCustomerSelection = (customerId: string) => {
+    const newSelectedCustomerIds = new Set(selectedCustomerIds);
+    if (newSelectedCustomerIds.has(customerId)) {
+      newSelectedCustomerIds.delete(customerId);
+    } else {
+      newSelectedCustomerIds.add(customerId);
+    }
+    setSelectedCustomerIds(newSelectedCustomerIds);
+  };
+
+  const handleRowClick = (customerId: string) => {
+    toggleCustomerSelection(customerId);
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 relative">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Customers</h1>
       </div>
@@ -101,9 +116,7 @@ export default function CustomersPage() {
         <table className="w-full">
           <thead className="bg-[--background-hover] border-b border-[--border-color]">
             <tr>
-              <th className="w-4 p-4">
-                <input type="checkbox" className="rounded border-[--border-color]" />
-              </th>
+              <th className="w-4 p-4"></th>
               <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Customer</th>
               <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Email</th>
               <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Total Spent</th>
@@ -113,9 +126,19 @@ export default function CustomersPage() {
           </thead>
           <tbody className="divide-y divide-[--border-color]">
             {paginatedCustomers.map((customer) => (
-              <tr key={customer.id} className="hover:bg-[--background-hover] cursor-pointer">
+              <tr 
+                key={customer.id} 
+                className="hover:bg-[--background-hover] cursor-pointer"
+                onClick={() => handleRowClick(customer.id)}
+              >
                 <td className="w-4 p-4">
-                  <input type="checkbox" className="rounded border-[--border-color]" />
+                  <input 
+                    type="checkbox" 
+                    className="rounded border-[--border-color] cursor-pointer" 
+                    checked={selectedCustomerIds.has(customer.id)}
+                    onChange={() => toggleCustomerSelection(customer.id)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
@@ -143,6 +166,17 @@ export default function CustomersPage() {
           onPageChange={handlePageChange}
         />
       </div>
+
+      {/* Delete Button */}
+      {selectedCustomerIds.size > 0 && (
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center z-10">
+          <button 
+            className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-lg transition-colors"
+          >
+            Delete {selectedCustomerIds.size} {selectedCustomerIds.size === 1 ? 'customer' : 'customers'}
+          </button>
+        </div>
+      )}
     </div>
   );
 } 
