@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { SearchBar } from '@/components/SearchBar';
 import { Tabs } from '@/components/Tabs';
 import { PillDropdown } from '@/components/PillDropdown';
@@ -9,6 +9,7 @@ import { useOrders } from '@/context/OrderContext';
 import { usePagination } from '@/hooks/usePagination';
 import { OrderFilter } from '@/types/order';
 import { BarChart3 } from 'lucide-react';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 const tabs = [
   { id: 'all', label: 'All orders' },
@@ -45,10 +46,18 @@ const statusOptions = [
 ];
 
 export default function OrdersPage() {
-  const { orders, updateOrderFulfillment, updateOrderStatus, orderStats } = useOrders();
+  console.log('OrdersPage rendering');
+  
+  const { orders, updateOrderFulfillment, updateOrderStatus, orderStats, deleteOrders } = useOrders();
   const [activeTab, setActiveTab] = useState<OrderFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Add debug log for dialog state changes
+  useEffect(() => {
+    console.log('Dialog state:', isDeleteDialogOpen);
+  }, [isDeleteDialogOpen]);
 
   const filteredOrders = useMemo(() => {
     let filtered = [...orders];
@@ -113,141 +122,163 @@ export default function OrdersPage() {
     toggleOrderSelection(orderId);
   };
 
+  const handleDelete = () => {
+    deleteOrders(Array.from(selectedOrderIds));
+    setSelectedOrderIds(new Set());
+    setIsDeleteDialogOpen(false);
+  };
+
   return (
-    <div className="space-y-6 pb-20 relative">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Orders</h1>
-      </div>
+    <>
+      <div className="space-y-6 pb-20 relative">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold">Orders</h1>
+        </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        <div className="rounded-lg border border-[--border-color] p-4">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-[--text-secondary]">Active Orders</span>
-            <BarChart3 className="w-4 h-4 text-[--primary]" />
+        <div className="grid grid-cols-4 gap-4">
+          <div className="rounded-lg border border-[--border-color] p-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-[--text-secondary]">Active Orders</span>
+              <BarChart3 className="w-4 h-4 text-[--primary]" />
+            </div>
+            <p className="text-2xl font-semibold">{orderStats.active}</p>
           </div>
-          <p className="text-2xl font-semibold">{orderStats.active}</p>
-        </div>
-        <div className="rounded-lg border border-[--border-color] p-4">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-[--text-secondary]">Unfulfilled</span>
-            <BarChart3 className="w-4 h-4 text-amber-500" />
+          <div className="rounded-lg border border-[--border-color] p-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-[--text-secondary]">Unfulfilled</span>
+              <BarChart3 className="w-4 h-4 text-amber-500" />
+            </div>
+            <p className="text-2xl font-semibold">{orderStats.unfulfilled}</p>
           </div>
-          <p className="text-2xl font-semibold">{orderStats.unfulfilled}</p>
-        </div>
-        <div className="rounded-lg border border-[--border-color] p-4">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-[--text-secondary]">Pending Receipt</span>
-            <BarChart3 className="w-4 h-4 text-purple-500" />
+          <div className="rounded-lg border border-[--border-color] p-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-[--text-secondary]">Pending Receipt</span>
+              <BarChart3 className="w-4 h-4 text-purple-500" />
+            </div>
+            <p className="text-2xl font-semibold">{orderStats.pendingReceipt}</p>
           </div>
-          <p className="text-2xl font-semibold">{orderStats.pendingReceipt}</p>
-        </div>
-        <div className="rounded-lg border border-[--border-color] p-4">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-sm text-[--text-secondary]">Fulfilled</span>
-            <BarChart3 className="w-4 h-4 text-emerald-500" />
+          <div className="rounded-lg border border-[--border-color] p-4">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-sm text-[--text-secondary]">Fulfilled</span>
+              <BarChart3 className="w-4 h-4 text-emerald-500" />
+            </div>
+            <p className="text-2xl font-semibold">{orderStats.fulfilled}</p>
           </div>
-          <p className="text-2xl font-semibold">{orderStats.fulfilled}</p>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between">
-        <Tabs 
-          tabs={tabs}
-          defaultTab="all"
-          onTabChange={handleTabChange}
-        />
-        <SearchBar 
-          placeholder="Search orders or customers..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
+        <div className="flex items-center justify-between">
+          <Tabs 
+            tabs={tabs}
+            defaultTab="all"
+            onTabChange={handleTabChange}
+          />
+          <SearchBar 
+            placeholder="Search orders or customers..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
 
-      <div className="rounded-lg border border-[--border-color] overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-[--background-hover] border-b border-[--border-color]">
-            <tr>
-              <th className="w-4 p-4"></th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Order ID</th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Created</th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Customer</th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Fulfillment</th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Total</th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Profit</th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Status</th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Updated</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[--border-color]">
-            {paginatedOrders.map((order) => (
-              <tr 
-                key={order.id} 
-                className="hover:bg-[--background-hover] cursor-pointer"
-                onClick={() => handleRowClick(order.id)}
-              >
-                <td className="w-4 p-4">
-                  <input 
-                    type="checkbox" 
-                    className="rounded border-[--border-color] cursor-pointer" 
-                    checked={selectedOrderIds.has(order.id)}
-                    onChange={() => toggleOrderSelection(order.id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </td>
-                <td className="px-6 py-4 text-sm text-[--primary]">{order.orderId}</td>
-                <td className="px-6 py-4 text-sm">{formatDate(order.created)}</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={order.customer.avatar}
-                      alt={order.customer.name}
-                      className="w-8 h-8 rounded-full"
-                    />
-                    <span className="text-sm">{order.customer.name}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                  <PillDropdown
-                    value={order.fulfillment}
-                    options={fulfillmentOptions}
-                    onChange={(value) => updateOrderFulfillment(order.id, value as any)}
-                    variant="fulfillment"
-                  />
-                </td>
-                <td className="px-6 py-4 text-sm">{formatCurrency(order.total)}</td>
-                <td className="px-6 py-4 text-sm">{formatCurrency(order.profit)}</td>
-                <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                  <PillDropdown
-                    value={order.status}
-                    options={statusOptions}
-                    onChange={(value) => updateOrderStatus(order.id, value as any)}
-                    variant="status"
-                  />
-                </td>
-                <td className="px-6 py-4 text-sm">{formatDate(order.updated)}</td>
+        <div className="rounded-lg border border-[--border-color] overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-[--background-hover] border-b border-[--border-color]">
+              <tr>
+                <th className="w-4 p-4"></th>
+                <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Order ID</th>
+                <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Created</th>
+                <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Customer</th>
+                <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Fulfillment</th>
+                <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Total</th>
+                <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Profit</th>
+                <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Status</th>
+                <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Updated</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        
-        {/* Pagination */}
-        <Pagination
-          totalItems={totalItems}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
+            </thead>
+            <tbody className="divide-y divide-[--border-color]">
+              {paginatedOrders.map((order) => (
+                <tr 
+                  key={order.id} 
+                  className="hover:bg-[--background-hover] cursor-pointer"
+                  onClick={() => handleRowClick(order.id)}
+                >
+                  <td className="w-4 p-4">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-[--border-color] cursor-pointer" 
+                      checked={selectedOrderIds.has(order.id)}
+                      onChange={() => toggleOrderSelection(order.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-sm text-[--primary]">{order.orderId}</td>
+                  <td className="px-6 py-4 text-sm">{formatDate(order.created)}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={order.customer.avatar}
+                        alt={order.customer.name}
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <span className="text-sm">{order.customer.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                    <PillDropdown
+                      value={order.fulfillment}
+                      options={fulfillmentOptions}
+                      onChange={(value) => updateOrderFulfillment(order.id, value as any)}
+                      variant="fulfillment"
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-sm">{formatCurrency(order.total)}</td>
+                  <td className="px-6 py-4 text-sm">{formatCurrency(order.profit)}</td>
+                  <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
+                    <PillDropdown
+                      value={order.status}
+                      options={statusOptions}
+                      onChange={(value) => updateOrderStatus(order.id, value as any)}
+                      variant="status"
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-sm">{formatDate(order.updated)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          
+          {/* Pagination */}
+          <Pagination
+            totalItems={totalItems}
+            currentPage={currentPage}
+            onPageChange={handlePageChange}
+          />
+        </div>
+
+        {/* Delete Button */}
+        {selectedOrderIds.size > 0 && (
+          <div className="fixed bottom-6 left-0 right-0 flex justify-center z-10">
+            <button 
+              onClick={() => {
+                console.log('Delete button clicked');
+                setIsDeleteDialogOpen(true);
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-lg transition-colors"
+            >
+              Delete {selectedOrderIds.size} {selectedOrderIds.size === 1 ? 'order' : 'orders'}
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Delete Button */}
-      {selectedOrderIds.size > 0 && (
-        <div className="fixed bottom-6 left-0 right-0 flex justify-center z-10">
-          <button 
-            className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-lg transition-colors"
-          >
-            Delete {selectedOrderIds.size} {selectedOrderIds.size === 1 ? 'order' : 'orders'}
-          </button>
-        </div>
-      )}
-    </div>
+      <ConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleDelete}
+        title="Delete"
+        message={`Are you sure you want to delete ${selectedOrderIds.size} ${
+          selectedOrderIds.size === 1 ? 'order' : 'orders'
+        }?`}
+      />
+    </>
   );
 } 

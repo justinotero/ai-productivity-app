@@ -8,6 +8,7 @@ interface OrderContextType {
   orders: Order[];
   updateOrderFulfillment: (orderId: string, fulfillment: FulfillmentStatus) => void;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
+  deleteOrders: (orderIds: string[]) => void;
   orderStats: {
     active: number;
     unfulfilled: number;
@@ -80,11 +81,16 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const deleteOrders = (orderIds: string[]) => {
+    setOrders(prevOrders => prevOrders.filter(order => !orderIds.includes(order.id)));
+  };
+
   return (
     <OrderContext.Provider value={{ 
       orders, 
       updateOrderFulfillment, 
       updateOrderStatus,
+      deleteOrders,
       orderStats
     }}>
       {children}
