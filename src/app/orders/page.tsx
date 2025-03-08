@@ -56,20 +56,13 @@ export default function OrdersPage() {
   
   const {
     selectedIds: selectedOrderIds,
-    isDeleteDialogOpen,
     toggleSelection: toggleOrderSelection,
     handleDelete,
-    openDeleteDialog,
-    closeDeleteDialog,
+    clearSelection,
   } = useDelete({
     onDelete: deleteOrders,
     itemName: 'order'
   });
-
-  // Add debug log for dialog state changes
-  useEffect(() => {
-    console.log('Dialog state:', isDeleteDialogOpen);
-  }, [isDeleteDialogOpen]);
 
   const filteredOrders = useMemo(() => {
     let filtered = [...orders];
@@ -254,9 +247,6 @@ export default function OrdersPage() {
       <DeleteButton
         selectedCount={selectedOrderIds.size}
         onDelete={handleDelete}
-        isDialogOpen={isDeleteDialogOpen}
-        onCloseDialog={closeDeleteDialog}
-        onOpenDialog={openDeleteDialog}
         itemName="order"
       />
     </>

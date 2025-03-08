@@ -34,11 +34,9 @@ export default function ProductsPage() {
 
   const {
     selectedIds: selectedProductIds,
-    isDeleteDialogOpen,
     toggleSelection: toggleProductSelection,
     handleDelete,
-    openDeleteDialog,
-    closeDeleteDialog,
+    clearSelection,
   } = useDelete({
     onDelete: deleteProducts,
     itemName: 'product'
@@ -193,9 +191,6 @@ export default function ProductsPage() {
       <DeleteButton
         selectedCount={selectedProductIds.size}
         onDelete={handleDelete}
-        isDialogOpen={isDeleteDialogOpen}
-        onCloseDialog={closeDeleteDialog}
-        onOpenDialog={openDeleteDialog}
         itemName="product"
       />
     </div>

@@ -5,6 +5,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { OrderProvider } from '@/context/OrderContext';
 import { ProductProvider } from '@/context/ProductContext';
 import { CustomerProvider } from '@/context/CustomerContext';
+import { DialogProvider } from '@/services/DialogService';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -21,22 +22,24 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <OrderProvider>
-          <ProductProvider>
-            <CustomerProvider>
-              <div className="flex min-h-screen bg-[--background]">
-                <div className="fixed inset-y-0 z-10 w-64 border-r border-[--border-color] bg-white">
-                  <Sidebar />
+        <DialogProvider>
+          <OrderProvider>
+            <ProductProvider>
+              <CustomerProvider>
+                <div className="flex min-h-screen bg-[--background]">
+                  <div className="fixed inset-y-0 z-10 w-64 border-r border-[--border-color] bg-white">
+                    <Sidebar />
+                  </div>
+                  <div className="ml-64 flex-1">
+                    <main className="p-6 w-full">
+                      {children}
+                    </main>
+                  </div>
                 </div>
-                <div className="ml-64 flex-1">
-                  <main className="p-6 w-full">
-                    {children}
-                  </main>
-                </div>
-              </div>
-            </CustomerProvider>
-          </ProductProvider>
-        </OrderProvider>
+              </CustomerProvider>
+            </ProductProvider>
+          </OrderProvider>
+        </DialogProvider>
       </body>
     </html>
   );

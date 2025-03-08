@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useDialog } from '@/services/DialogService';
 
 interface UseDeleteOptions<T> {
   onDelete: (ids: string[]) => void;
@@ -7,17 +8,14 @@ interface UseDeleteOptions<T> {
 
 interface UseDeleteReturn {
   selectedIds: Set<string>;
-  isDeleteDialogOpen: boolean;
   toggleSelection: (id: string) => void;
   handleDelete: () => void;
-  openDeleteDialog: () => void;
-  closeDeleteDialog: () => void;
   clearSelection: () => void;
 }
 
 export function useDelete<T>({ onDelete, itemName = 'item' }: UseDeleteOptions<T>): UseDeleteReturn {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const { showConfirmDialog } = useDialog();
 
   const toggleSelection = (id: string) => {
     const newSelectedIds = new Set(selectedIds);
@@ -29,23 +27,26 @@ export function useDelete<T>({ onDelete, itemName = 'item' }: UseDeleteOptions<T
     setSelectedIds(newSelectedIds);
   };
 
-  const handleDelete = () => {
-    onDelete(Array.from(selectedIds));
-    setSelectedIds(new Set());
-    setIsDeleteDialogOpen(false);
+  const handleDelete = async () => {
+    const count = selectedIds.size;
+    const confirmed = await showConfirmDialog({
+      title: 'Delete',
+      message: `Are you sure you want to delete ${count} ${count === 1 ? itemName : `${itemName}s`}?`,
+      type: 'delete'
+    });
+
+    if (confirmed) {
+      onDelete(Array.from(selectedIds));
+      setSelectedIds(new Set());
+    }
   };
 
-  const openDeleteDialog = () => setIsDeleteDialogOpen(true);
-  const closeDeleteDialog = () => setIsDeleteDialogOpen(false);
   const clearSelection = () => setSelectedIds(new Set());
 
   return {
     selectedIds,
-    isDeleteDialogOpen,
     toggleSelection,
     handleDelete,
-    openDeleteDialog,
-    closeDeleteDialog,
     clearSelection,
   };
 } 

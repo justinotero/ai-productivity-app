@@ -10,6 +10,8 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   title: string;
   message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
 }
 
 export function ConfirmDialog({
@@ -18,6 +20,8 @@ export function ConfirmDialog({
   onConfirm,
   title,
   message,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
 }: ConfirmDialogProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -46,6 +50,7 @@ export function ConfirmDialog({
         className="fixed inset-0 bg-black/50"
         style={{ zIndex: 9998 }}
         onClick={onClose}
+        data-testid="dialog-backdrop"
       />
       <div 
         className="fixed inset-0 flex items-center justify-center"
@@ -83,13 +88,13 @@ export function ConfirmDialog({
                 onClick={onClose}
                 className="min-w-[120px] px-6 py-3 text-sm font-medium rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
               >
-                Cancel
+                {cancelLabel}
               </button>
               <button
                 onClick={onConfirm}
                 className="min-w-[120px] px-6 py-3 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
               >
-                Confirm
+                {confirmLabel}
               </button>
             </div>
           </div>
