@@ -1,13 +1,12 @@
-export type ProductStatus = 'active' | 'draft' | 'archived';
+export type ProductStatus = 'Active' | 'Draft' | 'Archived';
+export type ProductFilter = 'all' | 'active' | 'draft' | 'archived';
 
 export interface Product {
   id: string;
   name: string;
-  image: string;
-  status: ProductStatus;
+  sku: string;
   price: number;
-  totalSales: number;
-  createdAt: Date;
-}
-
-export type ProductFilter = 'all' | ProductStatus; 
+  stock: number;
+  status: ProductStatus;
+  image: string;
+} 

@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { SearchBar } from '@/components/SearchBar';
 import { Pagination } from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
-import { customers } from '@/data/customers';
 import { BarChart3 } from 'lucide-react';
+import { useDelete } from '@/hooks/useDelete';
+import { DeleteButton } from '@/components/DeleteButton';
+import { useCustomers } from '@/context/CustomerContext';
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -23,8 +25,20 @@ function formatDate(date: Date): string {
 }
 
 export default function CustomersPage() {
+  const { customers, deleteCustomers } = useCustomers();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
+  
+  const {
+    selectedIds: selectedCustomerIds,
+    isDeleteDialogOpen,
+    toggleSelection: toggleCustomerSelection,
+    handleDelete,
+    openDeleteDialog,
+    closeDeleteDialog,
+  } = useDelete({
+    onDelete: deleteCustomers,
+    itemName: 'customer'
+  });
 
   // Filter customers based on search
   const filteredCustomers = customers.filter(customer => {
@@ -52,16 +66,6 @@ export default function CustomersPage() {
     setCurrentPage(page);
     // Scroll to top of table
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const toggleCustomerSelection = (customerId: string) => {
-    const newSelectedCustomerIds = new Set(selectedCustomerIds);
-    if (newSelectedCustomerIds.has(customerId)) {
-      newSelectedCustomerIds.delete(customerId);
-    } else {
-      newSelectedCustomerIds.add(customerId);
-    }
-    setSelectedCustomerIds(newSelectedCustomerIds);
   };
 
   const handleRowClick = (customerId: string) => {
@@ -167,16 +171,14 @@ export default function CustomersPage() {
         />
       </div>
 
-      {/* Delete Button */}
-      {selectedCustomerIds.size > 0 && (
-        <div className="fixed bottom-6 left-0 right-0 flex justify-center z-10">
-          <button 
-            className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-lg transition-colors"
-          >
-            Delete {selectedCustomerIds.size} {selectedCustomerIds.size === 1 ? 'customer' : 'customers'}
-          </button>
-        </div>
-      )}
+      <DeleteButton
+        selectedCount={selectedCustomerIds.size}
+        onDelete={handleDelete}
+        isDialogOpen={isDeleteDialogOpen}
+        onCloseDialog={closeDeleteDialog}
+        onOpenDialog={openDeleteDialog}
+        itemName="customer"
+      />
     </div>
   );
 } 

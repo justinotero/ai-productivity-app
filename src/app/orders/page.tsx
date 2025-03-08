@@ -10,6 +10,8 @@ import { usePagination } from '@/hooks/usePagination';
 import { OrderFilter } from '@/types/order';
 import { BarChart3 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
+import { useDelete } from '@/hooks/useDelete';
+import { DeleteButton } from '@/components/DeleteButton';
 
 const tabs = [
   { id: 'all', label: 'All orders' },
@@ -51,8 +53,18 @@ export default function OrdersPage() {
   const { orders, updateOrderFulfillment, updateOrderStatus, orderStats, deleteOrders } = useOrders();
   const [activeTab, setActiveTab] = useState<OrderFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  
+  const {
+    selectedIds: selectedOrderIds,
+    isDeleteDialogOpen,
+    toggleSelection: toggleOrderSelection,
+    handleDelete,
+    openDeleteDialog,
+    closeDeleteDialog,
+  } = useDelete({
+    onDelete: deleteOrders,
+    itemName: 'order'
+  });
 
   // Add debug log for dialog state changes
   useEffect(() => {
@@ -108,24 +120,8 @@ export default function OrdersPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const toggleOrderSelection = (orderId: string) => {
-    const newSelectedOrderIds = new Set(selectedOrderIds);
-    if (newSelectedOrderIds.has(orderId)) {
-      newSelectedOrderIds.delete(orderId);
-    } else {
-      newSelectedOrderIds.add(orderId);
-    }
-    setSelectedOrderIds(newSelectedOrderIds);
-  };
-
   const handleRowClick = (orderId: string) => {
     toggleOrderSelection(orderId);
-  };
-
-  const handleDelete = () => {
-    deleteOrders(Array.from(selectedOrderIds));
-    setSelectedOrderIds(new Set());
-    setIsDeleteDialogOpen(false);
   };
 
   return (
@@ -253,31 +249,15 @@ export default function OrdersPage() {
             onPageChange={handlePageChange}
           />
         </div>
-
-        {/* Delete Button */}
-        {selectedOrderIds.size > 0 && (
-          <div className="fixed bottom-6 left-0 right-0 flex justify-center z-10">
-            <button 
-              onClick={() => {
-                console.log('Delete button clicked');
-                setIsDeleteDialogOpen(true);
-              }}
-              className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md shadow-lg transition-colors"
-            >
-              Delete {selectedOrderIds.size} {selectedOrderIds.size === 1 ? 'order' : 'orders'}
-            </button>
-          </div>
-        )}
       </div>
 
-      <ConfirmDialog
-        isOpen={isDeleteDialogOpen}
-        onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={handleDelete}
-        title="Delete"
-        message={`Are you sure you want to delete ${selectedOrderIds.size} ${
-          selectedOrderIds.size === 1 ? 'order' : 'orders'
-        }?`}
+      <DeleteButton
+        selectedCount={selectedOrderIds.size}
+        onDelete={handleDelete}
+        isDialogOpen={isDeleteDialogOpen}
+        onCloseDialog={closeDeleteDialog}
+        onOpenDialog={openDeleteDialog}
+        itemName="order"
       />
     </>
   );
