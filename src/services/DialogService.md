@@ -2,171 +2,151 @@
 
 The Dialog Service provides a centralized way to manage dialog interactions in the application. It uses React Context to make dialog functionality available throughout the application and provides a promise-based API for handling dialog confirmations.
 
-## Features
+## Overview
+A flexible and reusable dialog service that handles various types of dialogs (confirmation, delete, success, warning) with consistent styling and behavior. The service uses React Context for global accessibility and provides a promise-based API for handling dialog interactions.
 
-- Centralized dialog management
+## List of Contributors
+1. Justin Otero (@justinotero) - Initial implementation and testing
+
+## Contributing Guidelines
+
+### Before Making Changes
+1. Ensure you have the latest code from the main branch
+2. Review existing dialog implementations to maintain consistency
+3. Run existing tests to ensure current functionality works
+
+### Testing Requirements
+1. Write tests for any new dialog types or features
+2. Cover both positive and negative interaction paths
+3. Test styling and accessibility features
+4. Ensure proper cleanup of dialogs
+5. Test body scroll locking behavior
+
+## Key Features
+- Centralized dialog management through React Context
 - Promise-based API for handling confirmations
-- Support for different dialog types (delete, confirm, warning)
-- Customizable dialog options
+- Support for multiple dialog types (delete, confirm, warning, success)
+- Customizable dialog options and styling
+- Automatic body scroll locking
 - TypeScript support with full type safety
+- Proper cleanup and state management
 
-## Installation
+## Implementation Details
 
-The Dialog Service is built into the application. To use it, you need to:
+### Core Components
+1. `DialogProvider`: Context provider component
+2. `ConfirmDialog`: Base dialog component
+3. `useDialog`: Custom hook for dialog interactions
 
-1. Wrap your application with the `DialogProvider`:
-
-```tsx
-import { DialogProvider } from '@/services/DialogService';
-
-function App() {
-  return (
-    <DialogProvider>
-      {/* Your app components */}
-    </DialogProvider>
-  );
+### State Management
+```typescript
+interface DialogState {
+  isOpen: boolean;
+  options: DialogOptions | null;
+  resolve: ((value: boolean) => void) | null;
 }
 ```
+
+### Type System
+```typescript
+interface DialogOptions {
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  type?: 'delete' | 'confirm' | 'warning' | 'success';
+  icon?: ReactNode;
+  showCancel?: boolean;
+}
+```
+
+## Dependencies
+- React (^18.2.0)
+- React DOM (^18.2.0)
+- Lucide React (for icons)
+- TypeScript (for type safety)
+
+## Core Functionality and Flows
+
+### Dialog Creation Flow
+1. Component calls `useDialog` hook
+2. Invokes `showConfirmDialog` or `showSuccessDialog`
+3. Dialog state is updated
+4. Dialog renders with specified options
+5. User interaction resolves the promise
+6. Dialog state is cleaned up
+
+### State Management Flow
+1. Dialog state is managed by `DialogProvider`
+2. State updates trigger re-renders
+3. Promise resolution handles async flow
+4. Cleanup occurs after dialog closes
 
 ## Usage
 
-### Basic Usage
-
-```tsx
-import { useDialog } from '@/services/DialogService';
-
-function MyComponent() {
-  const { showConfirmDialog } = useDialog();
-
-  const handleAction = async () => {
-    const confirmed = await showConfirmDialog({
-      title: "Confirm Action",
-      message: "Are you sure you want to proceed?",
-    });
-
-    if (confirmed) {
-      // Handle confirmation
-    }
-  };
-
-  return <button onClick={handleAction}>Perform Action</button>;
-}
-```
-
-### Delete Confirmation Example
-
-```tsx
-const handleDelete = async () => {
-  const confirmed = await showConfirmDialog({
-    title: "Delete Item",
-    message: "Are you sure you want to delete this item?",
-    type: "delete",
-    confirmLabel: "Delete",
-    cancelLabel: "Cancel"
-  });
-
-  if (confirmed) {
-    // Perform deletion
-  }
-};
-```
-
-## API Reference
-
-### DialogProvider
-
-The root component that provides dialog functionality to the application.
-
-```tsx
-<DialogProvider>
-  {/* Your app components */}
-</DialogProvider>
-```
-
-### useDialog Hook
-
-A hook that provides access to the dialog functionality.
-
-Returns:
-- `showConfirmDialog`: Function to show a confirmation dialog
-
-### DialogOptions
-
-Interface for configuring dialog appearance and behavior.
-
+### Basic Confirmation Dialog
 ```typescript
-interface DialogOptions {
-  title: string;          // Dialog title
-  message: string;        // Dialog message
-  confirmLabel?: string;  // Text for confirm button (optional)
-  cancelLabel?: string;   // Text for cancel button (optional)
-  type?: 'delete' | 'confirm' | 'warning';  // Dialog type (optional)
-  icon?: ReactNode;       // Custom icon (optional)
-}
-```
+const { showConfirmDialog } = useDialog();
 
-### showConfirmDialog
-
-Function to display a confirmation dialog.
-
-```typescript
-function showConfirmDialog(options: DialogOptions): Promise<boolean>
-```
-
-Parameters:
-- `options`: DialogOptions object
-
-Returns:
-- Promise that resolves to `true` if confirmed, `false` if cancelled
-
-## Examples
-
-### Warning Dialog
-
-```tsx
-const confirmed = await showConfirmDialog({
-  title: "Warning",
-  message: "This action cannot be undone",
-  type: "warning",
-  confirmLabel: "Proceed",
-  cancelLabel: "Go Back"
-});
-```
-
-### Custom Icon Dialog
-
-```tsx
-const confirmed = await showConfirmDialog({
-  title: "Custom Dialog",
-  message: "Dialog with custom icon",
-  icon: <CustomIcon />,
+const result = await showConfirmDialog({
+  title: "Confirm Action",
+  message: "Are you sure you want to proceed?",
   type: "confirm"
 });
 ```
 
-## Integration with useDelete Hook
+### Success Dialog
+```typescript
+const { showSuccessDialog } = useDialog();
 
-The Dialog Service is integrated with the `useDelete` hook for handling delete confirmations:
-
-```tsx
-const { handleDelete } = useDelete({
-  onDelete: deleteItems,
-  itemName: 'item'
+await showSuccessDialog({
+  title: "Success",
+  message: "Action completed successfully",
+  confirmLabel: "OK"
 });
-
-// handleDelete will automatically show a confirmation dialog
-await handleDelete();
 ```
 
-## Best Practices
+### Delete Confirmation
+```typescript
+const { showConfirmDialog } = useDialog();
 
-1. Always wrap your application with `DialogProvider` at a high level
-2. Use the `useDialog` hook within functional components
-3. Handle both confirmation and cancellation cases
-4. Provide clear and descriptive messages
-5. Use appropriate dialog types for different actions
-6. Consider using custom labels for better UX
+const confirmed = await showConfirmDialog({
+  title: "Delete Item",
+  message: "This action cannot be undone",
+  type: "delete",
+  confirmLabel: "Delete",
+  cancelLabel: "Cancel"
+});
+```
 
-## Error Handling
+## Important Notes
+1. Always wrap your application with `DialogProvider`
+2. Handle both success and error cases when using promises
+3. Consider accessibility when customizing dialogs
+4. Be mindful of z-index when multiple dialogs are possible
+5. Clean up any subscriptions or effects
 
-The `useDialog` hook will throw an error if used outside of a `DialogProvider`. Always ensure your components are wrapped with `DialogProvider`. 
+## Debugging and Troubleshooting
+
+### Common Issues
+1. Dialog not showing
+   - Check if `DialogProvider` is present in the component tree
+   - Verify dialog options are correct
+
+2. Promise not resolving
+   - Ensure proper error handling
+   - Check if dialog is being closed properly
+
+3. Styling issues
+   - Verify correct type is being passed
+   - Check for CSS conflicts
+
+### Getting Help
+1. Check the test files for usage examples
+2. Review the TypeScript types for proper usage
+3. Consult the React Context documentation
+4. File an issue with:
+   - Reproduction steps
+   - Expected behavior
+   - Actual behavior
+   - Code sample 

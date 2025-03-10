@@ -9,12 +9,14 @@ interface DialogOptions {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  type?: 'delete' | 'confirm' | 'warning';
+  type?: 'delete' | 'confirm' | 'warning' | 'success';
   icon?: ReactNode;
+  showCancel?: boolean;
 }
 
 interface DialogContextType {
   showConfirmDialog: (options: DialogOptions) => Promise<boolean>;
+  showSuccessDialog: (options: Omit<DialogOptions, 'type' | 'showCancel'>) => Promise<boolean>;
 }
 
 // Context
@@ -42,6 +44,15 @@ export function DialogProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const showSuccessDialog = (options: Omit<DialogOptions, 'type' | 'showCancel'>): Promise<boolean> => {
+    return showConfirmDialog({
+      ...options,
+      type: 'success',
+      showCancel: false,
+      confirmLabel: options.confirmLabel || 'OK'
+    });
+  };
+
   const handleClose = () => {
     if (dialogState.resolve) {
       dialogState.resolve(false);
@@ -65,7 +76,7 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <DialogContext.Provider value={{ showConfirmDialog }}>
+    <DialogContext.Provider value={{ showConfirmDialog, showSuccessDialog }}>
       {children}
       {dialogState.isOpen && dialogState.options && (
         <ConfirmDialog
@@ -76,6 +87,8 @@ export function DialogProvider({ children }: { children: ReactNode }) {
           message={dialogState.options.message}
           confirmLabel={dialogState.options.confirmLabel}
           cancelLabel={dialogState.options.cancelLabel}
+          type={dialogState.options.type}
+          showCancel={dialogState.options.showCancel}
         />
       )}
     </DialogContext.Provider>

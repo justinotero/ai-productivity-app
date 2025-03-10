@@ -209,4 +209,79 @@ describe('DialogService', () => {
       expect(screen.getByText('Second Dialog')).toBeInTheDocument();
     });
   });
+
+  it('should render success dialog with correct styling', async () => {
+    function SuccessComponent() {
+      const { showSuccessDialog } = useDialog();
+  
+      const handleClick = () => {
+        showSuccessDialog({
+          title: "Success",
+          message: "Action is done successfully!"
+        });
+      };
+  
+      return <button onClick={handleClick}>Show Success</button>;
+    }
+
+    render(
+      <DialogProvider>
+        <SuccessComponent />
+      </DialogProvider>
+    );
+
+    fireEvent.click(screen.getByText('Show Success'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Success')).toBeInTheDocument();
+      expect(screen.getByText('Action is done successfully!')).toBeInTheDocument();
+      
+      // Success dialog should have OK button and no cancel button
+      expect(screen.getByText('OK')).toBeInTheDocument();
+      expect(screen.queryByText('Cancel')).not.toBeInTheDocument();
+      
+      // Check for success styling
+      const iconContainer = screen.getByTestId('dialog-backdrop')
+        .nextElementSibling
+        ?.querySelector('.bg-green-50');
+      expect(iconContainer).toBeInTheDocument();
+    });
+  });
+
+  it('should close success dialog on confirm', async () => {
+    const onDialogResult = jest.fn();
+
+    function SuccessComponent({ onResult }: { onResult: (result: boolean) => void }) {
+      const { showSuccessDialog } = useDialog();
+  
+      const handleClick = async () => {
+        const result = await showSuccessDialog({
+          title: "Success",
+          message: "Action is done successfully!"
+        });
+        onResult(result);
+      };
+  
+      return <button onClick={handleClick}>Show Success</button>;
+    }
+
+    render(
+      <DialogProvider>
+        <SuccessComponent onResult={onDialogResult} />
+      </DialogProvider>
+    );
+
+    fireEvent.click(screen.getByText('Show Success'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Success')).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByText('OK'));
+
+    await waitFor(() => {
+      expect(onDialogResult).toHaveBeenCalledWith(true);
+      expect(screen.queryByText('Success')).not.toBeInTheDocument();
+    });
+  });
 }); 
