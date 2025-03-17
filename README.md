@@ -39,25 +39,49 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## Cursor MCP Setup
 
-This project uses Cursor's Model Context Protocol (MCP) for enhanced development features. To set it up:
+This project uses Cursor's Model Context Protocol (MCP) for enhanced development features. Follow these steps carefully to set up your environment securely:
 
-1. Create a GitHub Personal Access Token (Classic):
-   - Go to GitHub.com → Settings → Developer Settings → Personal Access Tokens → Tokens (classic)
-   - Generate new token (classic)
-   - Select scopes: `repo`, `read:org`
-   - Copy your token
+### 1. Create a GitHub Token
 
-2. Set up your environment:
-   ```bash
-   # Add to your ~/.zshrc, ~/.bashrc, or equivalent
-   export GITHUB_PAT_CURSOR=your_token_here
-   ```
-   
-   Or create a `.env` file in the project root:
-   ```bash
-   GITHUB_PAT_CURSOR=your_token_here
-   ```
+1. Go to [GitHub Personal Access Tokens](https://github.com/settings/tokens) page
+2. Click "Generate new token (classic)"
+3. Name it something recognizable (e.g., "Cursor MCP Integration")
+4. Select these scopes:
+   - `repo` (Full control of private repositories)
+   - `read:org` (Read org and team membership)
+5. Copy your token (you won't see it again!)
 
-3. Restart Cursor
+### 2. Set Up Your Token (Choose ONE method)
 
-The MCP configuration is stored in `.cursor/mcp.json` and will automatically use your token from the environment variable.
+#### Option A: Environment Variable (Recommended)
+Add to your shell configuration (`~/.zshrc`, `~/.bashrc`, or equivalent):
+```bash
+export GITHUB_PAT_CURSOR=your_token_here
+```
+Then reload your shell:
+```bash
+source ~/.zshrc  # or ~/.bashrc
+```
+
+#### Option B: Project .env File
+1. The project includes a `.env` file template
+2. Add your token:
+```bash
+GITHUB_PAT_CURSOR=your_token_here
+```
+
+⚠️ Security Notes:
+- NEVER commit tokens to Git
+- NEVER share your tokens in chat logs or screenshots
+- The `.env` file is git-ignored for your security
+- Each developer should set up their own token
+- Regularly rotate your tokens for better security
+
+### 3. Configuration
+- The MCP configuration is in `.cursor/mcp.json`
+- It uses `${GITHUB_PAT_CURSOR}` to reference your token securely
+- No modifications needed - just set up your token using one of the methods above
+
+### 4. Final Steps
+1. Restart Cursor
+2. Enable GitHub MCP server in Cursor settings
