@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@fontsource/geist": "^5.2.5",
+    "@modelcontextprotocol/server-github": "^2025.1.23",
     "@radix-ui/react-tooltip": "1.0.7",
     "chart.js": "^4.4.8",
     "clsx": "^2.1.1",
