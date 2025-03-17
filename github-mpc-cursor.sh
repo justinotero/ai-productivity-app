@@ -1,0 +1,1 @@
+GITHUB_PAT_CURSOR=your_token_here npx -y @modelcontextprotocol/server-github
