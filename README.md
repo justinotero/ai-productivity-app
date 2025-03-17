@@ -36,3 +36,28 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Cursor MCP Setup
+
+This project uses Cursor's Model Context Protocol (MCP) for enhanced development features. To set it up:
+
+1. Create a GitHub Personal Access Token (Classic):
+   - Go to GitHub.com → Settings → Developer Settings → Personal Access Tokens → Tokens (classic)
+   - Generate new token (classic)
+   - Select scopes: `repo`, `read:org`
+   - Copy your token
+
+2. Set up your environment:
+   ```bash
+   # Add to your ~/.zshrc, ~/.bashrc, or equivalent
+   export GITHUB_PAT_CURSOR=your_token_here
+   ```
+   
+   Or create a `.env` file in the project root:
+   ```bash
+   GITHUB_PAT_CURSOR=your_token_here
+   ```
+
+3. Restart Cursor
+
+The MCP configuration is stored in `.cursor/mcp.json` and will automatically use your token from the environment variable.
