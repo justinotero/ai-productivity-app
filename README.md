@@ -47,15 +47,23 @@ This project uses Cursor's Model Context Protocol (MCP) for enhanced development
    - Select scopes: `repo`, `read:org`
    - Copy your token
 
-2. Set up your environment:
+2. Set up your MCP Server:
    ```bash
-   # Add to your ~/.zshrc, ~/.bashrc, or equivalent
-   export GITHUB_PAT_CURSOR=your_token_here
-   ```
-   
-   Or create a `.env` file in the project root:
-   ```bash
-   GITHUB_PAT_CURSOR=your_token_here
+   {
+    "mcpServers": {
+      "github": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@smithery/cli@latest",
+          "run",
+          "@smithery-ai/github",
+          "--config",
+          "{\"githubPersonalAccessToken\":\"${GITHUB_PERSONAL_ACCESS_TOKEN}\"}"
+        ]
+      }
+    }
+  }
    ```
 
 3. Restart Cursor
