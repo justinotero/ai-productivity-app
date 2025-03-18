@@ -50,16 +50,20 @@ This project uses Cursor's Model Context Protocol (MCP) for enhanced development
 2. Set up your MCP Server:
    ```bash
    {
-      "mcpServers": {
-         "github": {
-         "command": "npx",
-         "args": ["@modelcontextprotocol/server-github"],
-         "env": {
-            "GITHUB_PAT_CURSOR": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
-         }
-         }
+    "mcpServers": {
+      "github": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@smithery/cli@latest",
+          "run",
+          "@smithery-ai/github",
+          "--config",
+          "{\"githubPersonalAccessToken\":\"${GITHUB_PERSONAL_ACCESS_TOKEN}\"}"
+        ]
       }
-   } 
+    }
+  }
    ```
 
 3. Restart Cursor
