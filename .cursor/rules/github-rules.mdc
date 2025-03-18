@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Github Rules
+
+- Interact with Github through Github MCP
+- If the changes are solely created by you, prefix commits with `[AI]`
+- If the changes are not solely created by you, prefix with `[AI Assisted]`
