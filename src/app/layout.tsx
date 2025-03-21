@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+'use client';
+
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from '@/components/Sidebar';
@@ -6,19 +7,18 @@ import { OrderProvider } from '@/context/OrderContext';
 import { ProductProvider } from '@/context/ProductContext';
 import { CustomerProvider } from '@/context/CustomerContext';
 import { DialogProvider } from '@/services/DialogService';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 
 const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: "Admin Dashboard",
-  description: "Admin dashboard for e-commerce",
-};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+
   return (
     <html lang="en">
       <body className={inter.className}>
@@ -27,14 +27,16 @@ export default function RootLayout({
             <ProductProvider>
               <CustomerProvider>
                 <div className="flex min-h-screen bg-[--background]">
-                  <div className="fixed inset-y-0 z-10 w-64 border-r border-[--border-color] bg-white">
-                    <Sidebar />
-                  </div>
-                  <div className="ml-64 flex-1">
-                    <main className="p-6 w-full">
-                      {children}
-                    </main>
-                  </div>
+                  <Sidebar onExpandedChange={setIsSidebarExpanded} />
+                  <motion.main 
+                    className="flex-1 p-6"
+                    animate={{ 
+                      marginLeft: isSidebarExpanded ? '16rem' : '4rem'
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    {children}
+                  </motion.main>
                 </div>
               </CustomerProvider>
             </ProductProvider>
