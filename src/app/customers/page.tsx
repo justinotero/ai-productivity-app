@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SearchBar } from '@/components/SearchBar';
 import { Pagination } from '@/components/Pagination';
 import { usePagination } from '@/hooks/usePagination';
@@ -28,7 +28,12 @@ function formatDate(date: Date | string): string {
 export default function CustomersPage() {
   const { customers, deleteCustomers } = useCustomers();
   const [searchQuery, setSearchQuery] = useState('');
+  const [mounted, setMounted] = useState(false);
   
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const {
     selectedIds: selectedCustomerIds,
     toggleSelection: toggleCustomerSelection,
@@ -60,6 +65,11 @@ export default function CustomersPage() {
     items: filteredCustomers,
     dependencies: [searchQuery],
   });
+
+  // Don't render anything until after hydration
+  if (!mounted) {
+    return null;
+  }
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
