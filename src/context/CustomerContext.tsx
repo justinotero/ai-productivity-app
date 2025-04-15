@@ -12,7 +12,12 @@ interface CustomerContextType {
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
 
 export function CustomerProvider({ children }: { children: ReactNode }) {
-  const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
+  const [customers, setCustomers] = useState<Customer[]>(() => 
+    initialCustomers.map(customer => ({
+      ...customer,
+      lastOrder: new Date(customer.lastOrder)
+    }))
+  );
 
   const deleteCustomers = (ids: string[]) => {
     setCustomers(prevCustomers => 

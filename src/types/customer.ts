@@ -5,5 +5,5 @@ export interface Customer {
   avatar: string;
   totalSpent: number;
   orders: number;
-  lastOrder: Date;
+  lastOrder: Date | string;
 } 

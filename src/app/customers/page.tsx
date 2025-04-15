@@ -16,12 +16,13 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-function formatDate(date: Date): string {
+function formatDate(date: Date | string): string {
+  const dateObj = date instanceof Date ? date : new Date(date);
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  }).format(date);
+  }).format(dateObj);
 }
 
 export default function CustomersPage() {
