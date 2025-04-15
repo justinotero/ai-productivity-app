@@ -30,6 +30,19 @@ interface MonthData {
   value: number;
 }
 
+const TestError = () => {
+  return (
+    <button
+      onClick={() => {
+        throw new Error("Test error for Sentry");
+      }}
+      className="px-4 py-2 bg-red-500 text-white rounded"
+    >
+      Test Sentry Error
+    </button>
+  );
+};
+
 export default function Dashboard() {
   const { orders, orderStats } = useOrders();
   const totalProducts = 456; // Fixed product count from screenshot
@@ -246,6 +259,8 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      <TestError />
     </div>
   );
 }
