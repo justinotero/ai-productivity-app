@@ -7,7 +7,7 @@ import { OrderProvider } from '@/context/OrderContext';
 import { ProductProvider } from '@/context/ProductContext';
 import { CustomerProvider } from '@/context/CustomerContext';
 import { DialogProvider } from '@/services/DialogService';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -18,6 +18,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+
+  useEffect(() => {
+    console.log('🚀 App has loaded and is ready!');
+  }, []);
 
   return (
     <html lang="en">
