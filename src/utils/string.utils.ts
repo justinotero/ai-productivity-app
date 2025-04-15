@@ -36,3 +36,5 @@ export default {
     toTitleCase,
     isTitleCase
 };
+
+const isLowercase = (str: string): boolean => str === str.toLowerCase();
