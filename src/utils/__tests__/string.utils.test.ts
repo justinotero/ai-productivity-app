@@ -81,4 +81,25 @@ describe('String Utilities', () => {
       });
     });
   });
+
+  describe('toLowerCase', () => {
+    it('should convert all uppercase letters to lowercase', () => {
+      expect(stringUtils.toLowerCase('HELLO WORLD')).toBe('hello world');
+      expect(stringUtils.toLowerCase('NASA')).toBe('nasa');
+    });
+
+    it('should handle mixed case strings', () => {
+      expect(stringUtils.toLowerCase('Hello World')).toBe('hello world');
+      expect(stringUtils.toLowerCase('JavaScript')).toBe('javascript');
+    });
+
+    it('should handle strings with numbers and special characters', () => {
+      expect(stringUtils.toLowerCase('Hello123!')).toBe('hello123!');
+      expect(stringUtils.toLowerCase('A_B-C.D')).toBe('a_b-c.d');
+    });
+
+    it('should handle empty strings', () => {
+      expect(stringUtils.toLowerCase('')).toBe('');
+    });
+  });
 }); 

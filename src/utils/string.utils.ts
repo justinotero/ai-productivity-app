@@ -32,7 +32,16 @@ const toTitleCase = (str: string): string => {
  */
 const isTitleCase = (str: string): boolean => str === toTitleCase(str);
 
+/**
+ * Converts a string to lowercase.
+ *
+ * @param str - The input string to convert
+ * @returns The string in lowercase format
+ */
+const toLowerCase = (str: string): string => str.toLowerCase();
+
 export default {
     toTitleCase,
-    isTitleCase
+    isTitleCase,
+    toLowerCase
 };
