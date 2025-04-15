@@ -19,7 +19,7 @@ export function ProductList({ filter = 'all', searchQuery = '' }: ProductListPro
     
     // Apply filter
     if (filter !== 'all') {
-      filtered = filtered.filter(product => product.status === filter);
+      filtered = filtered.filter(product => product.status === filter.charAt(0).toUpperCase() + filter.slice(1));
     }
     
     // Apply search
@@ -89,8 +89,7 @@ export function ProductList({ filter = 'all', searchQuery = '' }: ProductListPro
               <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Product</th>
               <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Status</th>
               <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Price</th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Total Sales</th>
-              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Added</th>
+              <th className="text-left text-sm font-medium text-[--text-secondary] px-6 py-3">Stock</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[--border-color]">
@@ -121,19 +120,18 @@ export function ProductList({ filter = 'all', searchQuery = '' }: ProductListPro
                     <span className="text-sm font-medium">{product.name}</span>
                   </div>
                 </td>
+                <td className="px-6 py-4 text-sm">{formatCurrency(product.price)}</td>
+                <td className="px-6 py-4 text-sm">{product.stock}</td>
                 <td className="px-6 py-4">
                   <span className={`
                     px-2 py-1 text-xs rounded-full
-                    ${product.status === 'active' && 'bg-green-100 text-green-700'}
-                    ${product.status === 'draft' && 'bg-gray-100 text-gray-700'}
-                    ${product.status === 'archived' && 'bg-red-100 text-red-700'}
+                    ${product.status === 'Active' && 'bg-green-100 text-green-700'}
+                    ${product.status === 'Draft' && 'bg-gray-100 text-gray-700'}
+                    ${product.status === 'Archived' && 'bg-red-100 text-red-700'}
                   `}>
-                    {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                    {product.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm">{formatCurrency(product.price)}</td>
-                <td className="px-6 py-4 text-sm">{formatCurrency(product.totalSales)}</td>
-                <td className="px-6 py-4 text-sm">{formatDate(product.createdAt)}</td>
               </tr>
             ))}
           </tbody>
