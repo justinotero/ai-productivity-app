@@ -162,7 +162,7 @@ export default function OrdersPage() {
             onTabChange={handleTabChange}
           />
           <SearchBar 
-            placeholder="Search orders or customers..." 
+            placeholder="Search" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
