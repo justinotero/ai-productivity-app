@@ -104,7 +104,7 @@ export function ConfirmDialog({
           {showCancel && (
             <button
               onClick={onClose}
-              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-4 top-4 text-[--text-secondary] hover:text-[--text-primary] transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -131,7 +131,7 @@ export function ConfirmDialog({
               {showCancel && (
                 <button
                   onClick={onClose}
-                  className="min-w-[120px] px-6 py-3 text-sm font-medium rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
+                  className="min-w-[120px] px-6 py-3 text-sm font-medium rounded-lg bg-[--background-hover] hover:bg-[--background-sidebar] transition-colors"
                 >
                   {cancelLabel}
                 </button>
