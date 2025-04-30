@@ -34,7 +34,9 @@ const TestError = () => {
   return (
     <button
       onClick={() => {
-        throw new Error("Test error for Sentry");
+        const person = null;
+        // Trying to access a property on null will throw a TypeError
+        console.log(person.name);
       }}
       className="px-4 py-2 bg-red-500 text-white rounded"
     >
